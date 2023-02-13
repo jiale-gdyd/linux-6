@@ -3923,6 +3923,31 @@ static const struct panel_desc arm_rtsm = {
 	.bus_format = MEDIA_BUS_FMT_RGB888_1X24,
 };
 
+static const struct drm_display_mode alientek_43inch_rgblcd_mode = {
+	.clock = 35500,
+	.hdisplay = 800,
+	.hsync_start = 800 + 210,
+	.hsync_end = 800 + 210 + 20,
+	.htotal = 800 + 210 + 20 + 46,
+	.vdisplay = 480,
+	.vsync_start = 480 + 22,
+	.vsync_end = 480 + 22 + 3,
+	.vtotal = 480 + 22 + 3 + 23,
+	.flags = DRM_MODE_FLAG_NHSYNC | DRM_MODE_FLAG_NVSYNC,
+};
+
+static const struct panel_desc alientek_43inch_rgblcd = {
+	.modes = &alientek_43inch_rgblcd_mode,
+	.num_modes = 1,
+	.bpc = 8,
+	.size = {
+		.width = 95,
+		.height = 54,
+	},
+	.bus_format = MEDIA_BUS_FMT_RGB888_1X24,
+	.bus_flags = DRM_BUS_FLAG_DE_HIGH | DRM_BUS_FLAG_PIXDATA_DRIVE_POSEDGE,
+};
+
 static const struct of_device_id platform_of_match[] = {
 	{
 		.compatible = "ampire,am-1280800n3tzqw-t00h",
@@ -4319,6 +4344,9 @@ static const struct of_device_id platform_of_match[] = {
 		.compatible = "panel-dpi",
 		.data = &panel_dpi,
 	}, {
+        .compatible = "alientek,4.3inch_rgblcd",
+        .data = &alientek_43inch_rgblcd,
+    }, {
 		/* sentinel */
 	}
 };
