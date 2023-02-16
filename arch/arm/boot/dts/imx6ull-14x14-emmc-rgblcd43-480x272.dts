@@ -7,11 +7,11 @@
 #include "imx6ull-14x14-aure-emmc.dtsi"
 
 / {
-	model = "Freescale i.MX6 UltraLiteLite 14x14 DDR-512MB EMMC-8GiB RGB-LCD 4.3inch 800x480 Board";
+	model = "Freescale i.MX6 UltraLiteLite 14x14 DDR-512MB EMMC-8GiB RGB-LCD 4.3inch 480x272 Board";
 	compatible = "fsl,imx6ull-14x14-evk", "fsl,imx6ull";
 
 	panel {
-		compatible = "alientek,4.3inch_rgblcd_800x480";
+		compatible = "alientek,4.3inch_rgblcd_480x272";
 		backlight = <&backlight_display>;
 
 		port {
