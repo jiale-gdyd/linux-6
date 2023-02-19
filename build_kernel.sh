@@ -35,6 +35,14 @@ IMX6ULL_CROSS_COMPILE=${IMX6ULL_CROSS_TOOLCHAIN_PATH}/bin/${IMX6ULL_CROSS_TOOLCH
 function clean()
 {
     make ARCH=arm CROSS_COMPILE=${IMX6ULL_CROSS_COMPILE} distclean
+
+    if [ -d "${CUR_DIR}/modules" ]; then
+        rm -rf ${CUR_DIR}/modules
+    fi
+
+    if [ -f "${CUR_DIR}/modules.tar.bz2" ]; then
+        rm ${CUR_DIR}/modules.tar.bz2
+    fi
 }
 
 function imx6ull_kernel()
@@ -49,13 +57,54 @@ function imx6ull_kernel()
     fi
 
     print_info "开始构建内核"
-
     make ARCH=arm CROSS_COMPILE=${IMX6ULL_CROSS_COMPILE} -j${CPU_CORS}
     if [ $? -ne 0 ]; then
         error_exit "构建内核失败"
     fi
-
     print_info "内核构建完成"
+
+    print_info "开始构建内核模块"
+    make ARCH=arm CROSS_COMPILE=${IMX6ULL_CROSS_COMPILE} modules -j${CPU_CORS}
+    if [ $? -ne 0 ]; then
+        error_exit "构建内核模块失败"
+    fi
+    print_info "内核模块构建完成"
+
+    if [ ! -d "${CUR_DIR}/modules" ]; then
+        mkdir modules
+    fi
+
+    print_info "开始安装内核模块"
+    make ARCH=arm CROSS_COMPILE=${IMX6ULL_CROSS_COMPILE} modules_install INSTALL_MOD_PATH=modules
+    if [ $? -ne 0 ]; then
+        error_exit "内核模块安装失败"
+    fi
+    print_info "安装内核模块完成"
+
+    cd ${CUR_DIR}/modules/lib/modules
+    tar -jcvf ${CUR_DIR}/modules.tar.bz2 .
+    cd ${CUR_DIR}
+
+    rm -rf ${CUR_DIR}/modules/lib
+    cp ${CUR_DIR}/arch/arm/boot/zImage ${CUR_DIR}/modules
+    cp ${CUR_DIR}/arch/arm/boot/dts/imx6ull-14x14-emmc-rgblcd43-800x480.dtb ${CUR_DIR}/modules
+}
+
+function copy()
+{
+    if [ -d "${CUR_DIR}/modules" ]; then
+        if [ -f "${CUR_DIR}/modules/modules.tar.bz2" ]; then
+            cp -rf ${CUR_DIR}/modules/modules.tar.bz2 /mnt/f/winshare/aure_imx_mfgtool/Profiles/Linux/OS\ Firmware/files/modules/
+        fi
+
+        if [ -f "${CUR_DIR}/modules/zImage" ]; then
+            cp -rf ${CUR_DIR}/modules/zImage /mnt/f/winshare/aure_imx_mfgtool/Profiles/Linux/OS\ Firmware/files/boot/
+        fi
+
+        if [ -f "${CUR_DIR}/modules/imx6ull-14x14-emmc-rgblcd43-800x480.dtb" ]; then
+            cp -rf ${CUR_DIR}/modules/imx6ull-14x14-emmc-rgblcd43-800x480.dtb /mnt/f/winshare/aure_imx_mfgtool/Profiles/Linux/OS\ Firmware/files/boot/
+        fi
+    fi
 }
 
 function logo()
@@ -92,6 +141,7 @@ function help()
     echo "==========================================="
     echo "  -  clean            清理工程编译信息"
     echo "  -  logo             制作自定义开机logo"
+    echo "  -  copy             拷贝文件到烧录工具"
     echo "  -  imx6ull_kernel   开始构建imx6ull内核目标"
     echo "==========================================="
 }
