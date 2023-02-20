@@ -22,6 +22,11 @@
 		status = "okay";
 	};
 
+	pxp_v4l2 {
+		compatible = "fsl,imx6ul-pxp-v4l2", "fsl,imx6sx-pxp-v4l2", "fsl,imx6sl-pxp-v4l2";
+		status = "okay";
+	};
+
 	reg_sd1_vmmc: regulator-sd1-vmmc {
 		compatible = "regulator-fixed";
 		regulator-name = "VSD_3V3";
@@ -153,8 +158,11 @@
 	/*assigned-clocks = <&clks IMX6UL_CLK_PLL4_AUDIO_DIV>;
 	assigned-clock-rates = <786432000>;*/
 
-	assigned-clocks = <&clks IMX6UL_CLK_PLL3_PFD2>;
-	assigned-clock-rates = <320000000>;
+	/*assigned-clocks = <&clks IMX6UL_CLK_PLL3_PFD2>;
+	assigned-clock-rates = <320000000>;*/
+
+	assigned-clocks = <&clks IMX6UL_CLK_PLL3_PFD2>, <&clks IMX6UL_CLK_PLL4_AUDIO_DIV>;
+	assigned-clock-rates = <320000000>, <786432000>;
 };
 
 &i2c2 {
@@ -267,7 +275,7 @@
 
 		ethphy0: ethernet-phy@0 {
 			compatible = "ethernet-phy-id0022.1560";
-			reg = <2>;
+			reg = <0>;
 			micrel,led-mode = <1>;
 			clocks = <&clks IMX6UL_CLK_ENET_REF>;
 			clock-names = "rmii-ref";
@@ -389,6 +397,9 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_uart2>;
 	uart-has-rtscts;
+	/* for DTE mode, add below change */
+	/* fsl,dte-mode; */
+	/* pinctrl-0 = <&pinctrl_uart2dte>; */
 	status = "okay";
 };
 
@@ -421,7 +432,7 @@
 	cd-gpios = <&gpio1 19 GPIO_ACTIVE_LOW>;
 	keep-power-in-suspend;
 	wakeup-source;
-	/*vmmc-supply = <&reg_sd1_vmmc>;*/
+	vmmc-supply = <&reg_sd1_vmmc>;
 	status = "okay";
 };
 
@@ -430,6 +441,7 @@
 	pinctrl-0 = <&pinctrl_usdhc2_8bit>;
 	pinctrl-1 = <&pinctrl_usdhc2_8bit_100mhz>;
 	pinctrl-2 = <&pinctrl_usdhc2_8bit_200mhz>;
+	bus-width = <8>;
 	no-1-8-v;
 	broken-cd;
 	keep-power-in-suspend;
