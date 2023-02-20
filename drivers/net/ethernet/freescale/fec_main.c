@@ -4152,6 +4152,15 @@ fec_probe(struct platform_device *pdev)
 	int irq_cnt;
 	struct fec_devinfo *dev_info;
 
+	void __iomem *IMX6UL_ENET1_TX_CLK;
+	void __iomem *IMX6UL_ENET2_TX_CLK;
+
+	IMX6UL_ENET1_TX_CLK = ioremap(0x020E00DC, 4);
+	writel(0x14, IMX6UL_ENET1_TX_CLK);
+
+	IMX6UL_ENET2_TX_CLK = ioremap(0x020E00FC, 4);
+	writel(0x14, IMX6UL_ENET2_TX_CLK);
+
 	fec_enet_get_queue_num(pdev, &num_tx_qs, &num_rx_qs);
 
 	/* Init network device */

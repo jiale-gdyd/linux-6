@@ -1,0 +1,37 @@
+// SPDX-License-Identifier: (GPL-2.0 OR MIT)
+//
+// Copyright (C) 2016 Freescale Semiconductor, Inc.
+
+/dts-v1/;
+
+#include "imx6ull-14x14-aure-emmc.dtsi"
+
+/ {
+	model = "Freescale i.MX6 UltraLiteLite 14x14 DDR-512MB EMMC-8GiB RGB-LCD 4.3inch 480x272 Board";
+	compatible = "fsl,imx6ull-14x14-evk", "fsl,imx6ull";
+
+	panel {
+		compatible = "alientek,4.3inch_rgblcd_480x272";
+		backlight = <&backlight_display>;
+
+		port {
+			panel_in: endpoint {
+				remote-endpoint = <&display_out>;
+			};
+		};
+	};
+};
+
+&lcdif {
+	assigned-clocks = <&clks IMX6UL_CLK_LCDIF_PRE_SEL>;
+	assigned-clock-parents = <&clks IMX6UL_CLK_PLL5_VIDEO_DIV>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_lcdif_dat &pinctrl_lcdif_ctrl>;
+	status = "okay";
+
+	port {
+		display_out: endpoint {
+			remote-endpoint = <&panel_in>;
+		};
+	};
+};
