@@ -21,8 +21,6 @@
 #include <linux/phy.h>
 #include <linux/netdevice.h>
 #include <linux/smscphy.h>
-#include <linux/of_gpio.h>
-#include <linux/io.h>
 
 /* Vendor-specific PHY Definitions */
 /* EDPD NLP / crossover time configuration */
@@ -127,38 +125,7 @@ static int smsc_phy_config_init(struct phy_device *phydev)
 
 static int smsc_phy_reset(struct phy_device *phydev)
 {
-    int err, phy_reset;
-    int msec = 1;
-    struct device_node *np;
-    int timeout = 50000;
-    int rc;
-
-    if (phydev->mdio.addr == 0) {
-        np = of_find_node_by_path("/soc/bus@2100000/ethernet@2188000");
-    } else if (phydev->mdio.addr == 1) {
-        np = of_find_node_by_path("/soc/bus@2000000/ethernet@20b4000");
-    }
-
-    if (!np) {
-        return -1;
-    }
-
-    err = of_property_read_u32(np, "phy-reset-duration", &msec);
-    if (!err && (msec > 1000)) {
-        msec = 1;
-    }
-
-    phy_reset = of_get_named_gpio(np, "phy-reset-gpios", 0);
-    if (!gpio_is_valid(phy_reset)) {
-        return -1;
-    }
-
-    gpio_direction_output(phy_reset, 0);
-    gpio_set_value(phy_reset, 0);
-    msleep(msec);
-    gpio_set_value(phy_reset, 1);
-
-	rc = phy_read(phydev, MII_LAN83C185_SPECIAL_MODES);
+	int rc = phy_read(phydev, MII_LAN83C185_SPECIAL_MODES);
 	if (rc < 0)
 		return rc;
 
@@ -170,16 +137,6 @@ static int smsc_phy_reset(struct phy_device *phydev)
 		rc |= MII_LAN83C185_MODE_ALL;
 		phy_write(phydev, MII_LAN83C185_SPECIAL_MODES, rc);
 	}
-
-    phy_write(phydev, MII_BMCR, BMCR_RESET);
-    do {
-        udelay(10);
-        if (timeout-- == 0) {
-            return -1;
-        }
-
-        rc = phy_read(phydev, MII_BMCR);
-    } while (rc & BMCR_RESET);
 
 	/* reset the phy */
 	return genphy_soft_reset(phydev);
